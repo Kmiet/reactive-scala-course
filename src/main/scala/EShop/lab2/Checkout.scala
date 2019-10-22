@@ -30,6 +30,7 @@ object Checkout {
 }
 
 class Checkout extends Actor {
+  import Checkout._
 
   private val scheduler = context.system.scheduler
   private val log       = Logging(context.system, this)
@@ -37,16 +38,65 @@ class Checkout extends Actor {
   val checkoutTimerDuration = 1 seconds
   val paymentTimerDuration  = 1 seconds
 
-  def receive: Receive = ???
+  private def checkoutTimer: Cancellable =
+    scheduler.scheduleOnce(checkoutTimerDuration, self, ExpireCheckout)(context.dispatcher)
+  private def paymentTimer: Cancellable =
+    scheduler.scheduleOnce(checkoutTimerDuration, self, ExpirePayment)(context.dispatcher)
 
-  def selectingDelivery(timer: Cancellable): Receive = ???
+  def receive: Receive = {
+    case StartCheckout => context become selectingDelivery(checkoutTimer)
+    case _             => context.system.terminate
+  }
 
-  def selectingPaymentMethod(timer: Cancellable): Receive = ???
+  def selectingDelivery(timer: Cancellable): Receive = {
+    case SelectDeliveryMethod(method) =>
+      timer.cancel
+      log.info("Delivery: " + method)
+      context become selectingPaymentMethod(checkoutTimer)
+    case CancelCheckout | ExpireCheckout =>
+      timer.cancel
+      context become cancelled
+      self ! CancelCheckout
+    case _ => context.system.terminate
+  }
 
-  def processingPayment(timer: Cancellable): Receive = ???
+  def selectingPaymentMethod(timer: Cancellable): Receive = {
+    case SelectPayment(method) =>
+      timer.cancel
+      log.info("Payment: " + method)
+      context become processingPayment(paymentTimer)
+    case CancelCheckout | ExpireCheckout =>
+      timer.cancel
+      context become cancelled
+      self ! CancelCheckout
+    case _ => context.system.terminate
+  }
 
-  def cancelled: Receive = ???
+  def processingPayment(timer: Cancellable): Receive = {
+    case ReceivePayment =>
+      timer.cancel
+      log.info("Received payment")
+      context become closed
+      self ! CheckOutClosed
+    case CancelCheckout | ExpirePayment =>
+      timer.cancel
+      context become cancelled
+      self ! CancelCheckout
+    case _ => context.system.terminate
+  }
 
-  def closed: Receive = ???
+  def cancelled: Receive = {
+    case _ =>
+      log.info("Cancelled checkout")
+      context.parent ! CartActor.CancelCheckout
+      context stop self
+  }
+
+  def closed: Receive = {
+    case _ =>
+      log.info("Closed checkout")
+      context.parent ! CartActor.CloseCheckout
+      context stop self
+  }
 
 }

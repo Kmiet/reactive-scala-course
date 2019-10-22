@@ -111,7 +111,7 @@ class CartFSMTest
     cart ! AddItem("King Lear")
     expectMsg(nonEmptyMsg)
     expectMsg(0)
-    Thread.sleep(2000)
+    Thread.sleep(5000)
     cart ! AddItem("King Lear")
     expectMsg(nonEmptyMsg)
     expectMsg(0)

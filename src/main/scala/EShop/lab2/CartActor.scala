@@ -23,18 +23,63 @@ object CartActor {
 }
 
 class CartActor extends Actor {
+  import CartActor._
 
   private val log       = Logging(context.system, this)
   val cartTimerDuration = 5 seconds
 
-  private def scheduleTimer: Cancellable = ???
+  private def scheduleTimer: Cancellable =
+    context.system.scheduler.scheduleOnce(cartTimerDuration, self, ExpireCart)(context.dispatcher)
 
   def receive: Receive = empty
 
-  def empty: Receive = ???
+  def empty: Receive = {
+    case AddItem(item) =>
+      val cart = Cart().addItem(item)
+      log.info("Cart: " + cart.toString)
+      context become nonEmpty(cart, scheduleTimer)
+    case _ => context stop self
+  }
 
-  def nonEmpty(cart: Cart, timer: Cancellable): Receive = ???
+  def nonEmpty(cart: Cart, timer: Cancellable): Receive = {
+    case AddItem(item) =>
+      timer.cancel
+      val newCart = cart.addItem(item)
+      log.info(newCart.toString)
+      context become nonEmpty(newCart, scheduleTimer)
+    case RemoveItem(item) if cart.contains(item) && cart.size > 1 =>
+      timer.cancel
+      val newCart = cart.removeItem(item)
+      log.info(newCart.toString)
+      context become nonEmpty(newCart, scheduleTimer)
+    case RemoveItem(item) if cart.contains(item) =>
+      timer.cancel
+      log.info("Removed last item from cart")
+      context become empty
+    case RemoveItem =>
+      timer.cancel
+      log.info("Cannot remove item. It's not included in cart:" + cart.toString)
+      context become nonEmpty(cart, scheduleTimer)
+    case ExpireCart =>
+      timer.cancel
+      log.info("Cart has expired")
+      context become empty
+    case StartCheckout =>
+      timer.cancel
+      log.info("Checkout begins")
+      context.actorOf(Checkout.props(self)) ! Checkout.StartCheckout
+      context become inCheckout(cart)
+    case _ => context stop self
+  }
 
-  def inCheckout(cart: Cart): Receive = ???
+  def inCheckout(cart: Cart): Receive = {
+    case CancelCheckout =>
+      log.info("Checkout canceled")
+      context become nonEmpty(cart, scheduleTimer)
+    case CloseCheckout =>
+      log.info("Checkout completed")
+      context become empty
+    case _ => context stop self
+  }
 
 }

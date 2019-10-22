@@ -40,7 +40,7 @@ class CheckoutFSMTest
     val checkoutActor = TestFSMRef[Status, Data, CheckoutFSM](new CheckoutFSM())
 
     checkoutActor ! StartCheckout
-    Thread.sleep(2000)
+    Thread.sleep(4000)
     checkoutActor ! SelectDeliveryMethod(deliveryMethod)
     checkoutActor.stateName shouldBe Cancelled
   }
@@ -72,7 +72,7 @@ class CheckoutFSMTest
     expectMsg(selectingDeliveryMsg)
     checkoutActor ! SelectDeliveryMethod(deliveryMethod)
     expectMsg(selectingPaymentMethodMsg)
-    Thread.sleep(3000)
+    Thread.sleep(4000)
     checkoutActor ! SelectPayment(paymentMethod)
     expectNoMessage()
   }
@@ -107,7 +107,7 @@ class CheckoutFSMTest
     checkoutActor ! StartCheckout
     checkoutActor ! SelectDeliveryMethod(deliveryMethod)
     checkoutActor ! SelectPayment(paymentMethod)
-    Thread.sleep(2000)
+    Thread.sleep(4000)
     checkoutActor ! ReceivePayment
     checkoutActor.stateName shouldBe Cancelled
   }
@@ -171,9 +171,6 @@ object CheckoutFSMTest {
           sender ! cancelledMsg
 
         case SelectingPaymentMethod -> Cancelled =>
-          sender ! cancelledMsg
-
-        case SelectingDelivery -> Cancelled =>
           sender ! cancelledMsg
 
         case SelectingDelivery -> Cancelled =>

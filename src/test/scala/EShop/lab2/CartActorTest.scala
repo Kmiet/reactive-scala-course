@@ -126,7 +126,7 @@ class CartActorTest
     cart ! AddItem("King Lear")
     expectMsg(nonEmptyMsg)
     expectMsg(1)
-    Thread.sleep(1500)
+    Thread.sleep(5000)
     cart ! AddItem("King Lear")
     expectMsg(nonEmptyMsg)
     expectMsg(1)
