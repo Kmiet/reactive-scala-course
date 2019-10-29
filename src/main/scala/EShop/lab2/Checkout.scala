@@ -1,5 +1,6 @@
 package EShop.lab2
 
+import EShop.lab3.Payment
 import akka.actor.{Actor, ActorRef, Cancellable, Props}
 import akka.event.Logging
 
@@ -35,8 +36,8 @@ class Checkout extends Actor {
   private val scheduler = context.system.scheduler
   private val log       = Logging(context.system, this)
 
-  val checkoutTimerDuration = 1 seconds
-  val paymentTimerDuration  = 1 seconds
+  val checkoutTimerDuration = 3 seconds
+  val paymentTimerDuration  = 3 seconds
 
   private def checkoutTimer: Cancellable =
     scheduler.scheduleOnce(checkoutTimerDuration, self, ExpireCheckout)(context.dispatcher)
@@ -51,7 +52,6 @@ class Checkout extends Actor {
   def selectingDelivery(timer: Cancellable): Receive = {
     case SelectDeliveryMethod(method) =>
       timer.cancel
-      log.info("Delivery: " + method)
       context become selectingPaymentMethod(checkoutTimer)
     case CancelCheckout | ExpireCheckout =>
       timer.cancel
@@ -63,8 +63,9 @@ class Checkout extends Actor {
   def selectingPaymentMethod(timer: Cancellable): Receive = {
     case SelectPayment(method) =>
       timer.cancel
-      log.info("Payment: " + method)
+      val paymentRef = context.actorOf(Payment.props(method, sender, self))
       context become processingPayment(paymentTimer)
+      sender ! PaymentStarted(paymentRef)
     case CancelCheckout | ExpireCheckout =>
       timer.cancel
       context become cancelled
@@ -75,7 +76,6 @@ class Checkout extends Actor {
   def processingPayment(timer: Cancellable): Receive = {
     case ReceivePayment =>
       timer.cancel
-      log.info("Received payment")
       context become closed
       self ! CheckOutClosed
     case CancelCheckout | ExpirePayment =>
@@ -87,14 +87,12 @@ class Checkout extends Actor {
 
   def cancelled: Receive = {
     case _ =>
-      log.info("Cancelled checkout")
       context.parent ! CartActor.CancelCheckout
       context stop self
   }
 
   def closed: Receive = {
     case _ =>
-      log.info("Closed checkout")
       context.parent ! CartActor.CloseCheckout
       context stop self
   }

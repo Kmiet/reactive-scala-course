@@ -1,5 +1,6 @@
 package EShop.lab3
 
+import EShop.lab2.Checkout
 import EShop.lab3.Payment._
 import akka.actor.{ActorRef, FSM, Props}
 

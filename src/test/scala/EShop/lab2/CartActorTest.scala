@@ -1,6 +1,6 @@
 package EShop.lab2
 
-import EShop.lab2.CartActor.{AddItem, CancelCheckout, CloseCheckout, RemoveItem, StartCheckout}
+import EShop.lab2.CartActor.{AddItem, CancelCheckout, CheckoutStarted, CloseCheckout, RemoveItem, StartCheckout}
 import akka.actor.{ActorRef, ActorSystem, Cancellable, Props}
 import akka.testkit.{ImplicitSender, TestKit}
 import org.scalatest.{BeforeAndAfterAll, FlatSpecLike}
@@ -70,6 +70,9 @@ class CartActorTest
     cart ! StartCheckout
     expectMsg(inCheckoutMsg)
     expectMsg(1)
+    expectMsgPF() {
+      case CheckoutStarted(_) => ()
+    }
   }
 
   it should "cancel checkout properly" in {
@@ -81,6 +84,9 @@ class CartActorTest
     cart ! StartCheckout
     expectMsg(inCheckoutMsg)
     expectMsg(1)
+    expectMsgPF() {
+      case CheckoutStarted(_) => ()
+    }
     cart ! CancelCheckout
     expectMsg(nonEmptyMsg)
     expectMsg(1)
@@ -95,6 +101,9 @@ class CartActorTest
     cart ! StartCheckout
     expectMsg(inCheckoutMsg)
     expectMsg(1)
+    expectMsgPF() {
+      case CheckoutStarted(_) => ()
+    }
     cart ! CloseCheckout
     expectMsg(emptyMsg)
     expectMsg(0)
@@ -109,6 +118,9 @@ class CartActorTest
     cart ! StartCheckout
     expectMsg(inCheckoutMsg)
     expectMsg(1)
+    expectMsgPF() {
+      case CheckoutStarted(_) => ()
+    }
     cart ! AddItem("Henryk V")
     expectNoMessage
   }

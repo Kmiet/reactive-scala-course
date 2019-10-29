@@ -1,5 +1,6 @@
 package EShop.lab3
 
+import EShop.lab2.{CartActor, Checkout, CheckoutFSM}
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit, TestProbe}
 import org.scalatest.concurrent.ScalaFutures

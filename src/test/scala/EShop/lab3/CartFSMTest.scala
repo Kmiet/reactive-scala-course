@@ -1,6 +1,7 @@
 package EShop.lab3
 
-import EShop.lab3.CartFSM.Status.{Empty, InCheckout, NonEmpty}
+import EShop.lab2.{Cart, CartActor, CartFSM}
+import EShop.lab2.CartFSM.Status.{Empty, InCheckout, NonEmpty}
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestActorRef, TestKit}
 import org.scalatest.concurrent.ScalaFutures

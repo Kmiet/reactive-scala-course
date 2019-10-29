@@ -1,7 +1,10 @@
 package EShop.lab3
 
-import EShop.lab3.CartActor.CheckoutStarted
-import EShop.lab3.Checkout.PaymentStarted
+import EShop.lab2.CartActor
+import EShop.lab2.Checkout
+import EShop.lab2.CartFSM
+import EShop.lab2.CartActor.CheckoutStarted
+import EShop.lab2.Checkout.PaymentStarted
 import EShop.lab3.OrderManager._
 import akka.actor.FSM
 

@@ -1,6 +1,6 @@
 package EShop.lab2
 
-import EShop.lab2.CartActor.{AddItem, CancelCheckout, CloseCheckout, RemoveItem, StartCheckout}
+import EShop.lab2.CartActor.{AddItem, CancelCheckout, CheckoutStarted, CloseCheckout, RemoveItem, StartCheckout}
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
 import org.scalatest.{BeforeAndAfterAll, FlatSpecLike}
@@ -53,6 +53,9 @@ class CartFSMTest
     expectMsg(nonEmptyMsg)
     expectMsg(0)
     cart ! StartCheckout
+    expectMsgPF() {
+      case CheckoutStarted(_) => ()
+    }
     expectMsg(inCheckoutMsg)
     expectMsg(1)
   }
@@ -64,6 +67,9 @@ class CartFSMTest
     expectMsg(nonEmptyMsg)
     expectMsg(0)
     cart ! StartCheckout
+    expectMsgPF() {
+      case CheckoutStarted(_) => ()
+    }
     expectMsg(inCheckoutMsg)
     expectMsg(1)
     cart ! CancelCheckout
@@ -78,6 +84,9 @@ class CartFSMTest
     expectMsg(nonEmptyMsg)
     expectMsg(0)
     cart ! StartCheckout
+    expectMsgPF() {
+      case CheckoutStarted(_) => ()
+    }
     expectMsg(inCheckoutMsg)
     expectMsg(1)
     cart ! CloseCheckout
@@ -92,6 +101,9 @@ class CartFSMTest
     expectMsg(nonEmptyMsg)
     expectMsg(0)
     cart ! StartCheckout
+    expectMsgPF() {
+      case CheckoutStarted(_) => ()
+    }
     expectMsg(inCheckoutMsg)
     expectMsg(1)
     cart ! AddItem("Henryk V")

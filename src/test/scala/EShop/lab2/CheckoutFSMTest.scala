@@ -85,6 +85,9 @@ class CheckoutFSMTest
     checkoutActor ! SelectDeliveryMethod(deliveryMethod)
     expectMsg(selectingPaymentMethodMsg)
     checkoutActor ! SelectPayment(paymentMethod)
+    expectMsgPF() {
+      case PaymentStarted(_) => ()
+    }
     expectMsg(processingPaymentMsg)
   }
 
@@ -96,6 +99,9 @@ class CheckoutFSMTest
     checkoutActor ! SelectDeliveryMethod(deliveryMethod)
     expectMsg(selectingPaymentMethodMsg)
     checkoutActor ! SelectPayment(paymentMethod)
+    expectMsgPF() {
+      case PaymentStarted(_) => ()
+    }
     expectMsg(processingPaymentMsg)
     checkoutActor ! CancelCheckout
     expectMsg(cancelledMsg)
@@ -107,7 +113,10 @@ class CheckoutFSMTest
     checkoutActor ! StartCheckout
     checkoutActor ! SelectDeliveryMethod(deliveryMethod)
     checkoutActor ! SelectPayment(paymentMethod)
-    Thread.sleep(4000)
+    expectMsgPF() {
+      case PaymentStarted(_) => ()
+    }
+    Thread.sleep(6000)
     checkoutActor ! ReceivePayment
     checkoutActor.stateName shouldBe Cancelled
   }
@@ -120,6 +129,9 @@ class CheckoutFSMTest
     checkoutActor ! SelectDeliveryMethod(deliveryMethod)
     expectMsg(selectingPaymentMethodMsg)
     checkoutActor ! SelectPayment(paymentMethod)
+    expectMsgPF() {
+      case PaymentStarted(_) => ()
+    }
     expectMsg(processingPaymentMsg)
     checkoutActor ! ReceivePayment
     expectMsg(closedMsg)
@@ -133,6 +145,9 @@ class CheckoutFSMTest
     checkoutActor ! SelectDeliveryMethod(deliveryMethod)
     expectMsg(selectingPaymentMethodMsg)
     checkoutActor ! SelectPayment(paymentMethod)
+    expectMsgPF() {
+      case PaymentStarted(_) => ()
+    }
     expectMsg(processingPaymentMsg)
     checkoutActor ! ReceivePayment
     expectMsg(closedMsg)

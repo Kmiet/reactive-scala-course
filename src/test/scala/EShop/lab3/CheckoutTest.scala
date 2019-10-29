@@ -1,5 +1,6 @@
 package EShop.lab3
 
+import EShop.lab2.{CartActor, Checkout, CheckoutFSM}
 import akka.actor.{ActorRef, ActorSystem}
 import akka.testkit.{ImplicitSender, TestActorRef, TestKit, TestProbe}
 import org.scalatest.concurrent.ScalaFutures
@@ -18,7 +19,7 @@ class CheckoutTest
 
   it should "Send close confirmation to cart" in {
     val testCart      = TestProbe()
-    val checkoutActor = testCart.childActorOf(CheckoutFSM.props(testCart.ref))
+    val checkoutActor = testCart.childActorOf(Checkout.props(testCart.ref))
 
     checkoutActor ! Checkout.StartCheckout
     expectNoMessage()

@@ -1,6 +1,6 @@
 package EShop.lab2
 
-import EShop.lab2.CartActor.{AddItem, CancelCheckout, CloseCheckout, RemoveItem, StartCheckout}
+import EShop.lab2.CartActor._
 import EShop.lab2.CartFSM.Status
 import akka.actor.{LoggingFSM, Props}
 
@@ -18,8 +18,7 @@ object CartFSM {
 }
 
 class CartFSM extends LoggingFSM[Status.Value, Cart] {
-  import EShop.lab2.CartFSM.Status._
-
+  import CartFSM.Status._
   // useful for debugging, see: https://doc.akka.io/docs/akka/current/fsm.html#rolling-event-log
   override def logDepth = 12
 
@@ -30,6 +29,10 @@ class CartFSM extends LoggingFSM[Status.Value, Cart] {
   when(Empty) {
     case Event(AddItem(item), cart) => {
       goto(NonEmpty).using(cart.addItem(item))
+    }
+    case Event(GetItems, cart) => {
+      sender ! cart.items
+      stay()
     }
   }
 
@@ -46,8 +49,14 @@ class CartFSM extends LoggingFSM[Status.Value, Cart] {
     case Event(RemoveItem(item), cart) => {
       goto(Empty).using(cart.removeItem(item))
     }
+    case Event(GetItems, cart) => {
+      sender ! cart.items
+      stay()
+    }
     case Event(StartCheckout, cart) => {
-      context.actorOf(CheckoutFSM.props(self)) ! Checkout.StartCheckout
+      val checkoutRef = context.actorOf(CheckoutFSM.props(self))
+      checkoutRef ! Checkout.StartCheckout
+      sender ! CheckoutStarted(checkoutRef)
       goto(InCheckout).using(cart)
     }
     case Event(StateTimeout, _) => {

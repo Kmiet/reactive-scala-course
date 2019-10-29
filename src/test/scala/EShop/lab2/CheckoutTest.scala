@@ -1,6 +1,13 @@
 package EShop.lab2
 
-import EShop.lab2.Checkout.{CancelCheckout, ReceivePayment, SelectDeliveryMethod, SelectPayment, StartCheckout}
+import EShop.lab2.Checkout.{
+  CancelCheckout,
+  PaymentStarted,
+  ReceivePayment,
+  SelectDeliveryMethod,
+  SelectPayment,
+  StartCheckout
+}
 import akka.actor.{ActorSystem, Cancellable, Props}
 import akka.testkit.{ImplicitSender, TestKit}
 import org.scalatest.{BeforeAndAfterAll, FlatSpecLike}
@@ -96,6 +103,9 @@ class CheckoutTest
     expectMsg(selectingPaymentMethodMsg)
     checkoutActor ! SelectPayment(paymentMethod)
     expectMsg(processingPaymentMsg)
+    expectMsgPF() {
+      case PaymentStarted(_) => ()
+    }
   }
 
   it should "be in cancelled state after cancel message received in processingPayment State" in {
@@ -107,6 +117,9 @@ class CheckoutTest
     expectMsg(selectingPaymentMethodMsg)
     checkoutActor ! SelectPayment(paymentMethod)
     expectMsg(processingPaymentMsg)
+    expectMsgPF() {
+      case PaymentStarted(_) => ()
+    }
     checkoutActor ! CancelCheckout
     expectMsg(cancelledMsg)
   }
@@ -123,7 +136,10 @@ class CheckoutTest
     checkoutActor ! StartCheckout
     checkoutActor ! SelectDeliveryMethod(deliveryMethod)
     checkoutActor ! SelectPayment(paymentMethod)
-    Thread.sleep(2000)
+    expectMsgPF() {
+      case PaymentStarted(_) => ()
+    }
+    Thread.sleep(5000)
     checkoutActor ! ReceivePayment
     expectMsg(cancelledMsg)
   }
@@ -137,6 +153,9 @@ class CheckoutTest
     expectMsg(selectingPaymentMethodMsg)
     checkoutActor ! SelectPayment(paymentMethod)
     expectMsg(processingPaymentMsg)
+    expectMsgPF() {
+      case PaymentStarted(_) => ()
+    }
     checkoutActor ! ReceivePayment
     expectMsg(closedMsg)
   }
@@ -150,6 +169,9 @@ class CheckoutTest
     expectMsg(selectingPaymentMethodMsg)
     checkoutActor ! SelectPayment(paymentMethod)
     expectMsg(processingPaymentMsg)
+    expectMsgPF() {
+      case PaymentStarted(_) => ()
+    }
     checkoutActor ! ReceivePayment
     expectMsg(closedMsg)
     checkoutActor ! CancelCheckout
