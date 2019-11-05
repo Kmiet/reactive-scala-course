@@ -54,7 +54,7 @@ class CartFSMTest
     expectMsg(0)
     cart ! StartCheckout
     expectMsgPF() {
-      case CheckoutStarted(_) => ()
+      case CheckoutStarted(_, _) => ()
     }
     expectMsg(inCheckoutMsg)
     expectMsg(1)
@@ -68,7 +68,7 @@ class CartFSMTest
     expectMsg(0)
     cart ! StartCheckout
     expectMsgPF() {
-      case CheckoutStarted(_) => ()
+      case CheckoutStarted(_, _) => ()
     }
     expectMsg(inCheckoutMsg)
     expectMsg(1)
@@ -85,7 +85,7 @@ class CartFSMTest
     expectMsg(0)
     cart ! StartCheckout
     expectMsgPF() {
-      case CheckoutStarted(_) => ()
+      case CheckoutStarted(_, _) => ()
     }
     expectMsg(inCheckoutMsg)
     expectMsg(1)
@@ -102,7 +102,7 @@ class CartFSMTest
     expectMsg(0)
     cart ! StartCheckout
     expectMsgPF() {
-      case CheckoutStarted(_) => ()
+      case CheckoutStarted(_, _) => ()
     }
     expectMsg(inCheckoutMsg)
     expectMsg(1)

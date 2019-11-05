@@ -72,7 +72,7 @@ class CartFSMTest
     expectMsg(Cart().addItem("item").items)
     cartActor ! CartActor.StartCheckout
     expectMsgPF() {
-      case CartActor.CheckoutStarted(_) => ()
+      case CartActor.CheckoutStarted(_, _) => ()
     }
 
     val cartActor2 = system.actorOf(CartFSM.props)
@@ -83,7 +83,7 @@ class CartFSMTest
     expectMsg(Cart().addItem("item").items)
     cartActor2 ! CartActor.StartCheckout
     expectMsgPF() {
-      case CartActor.CheckoutStarted(_) => ()
+      case CartActor.CheckoutStarted(_, _) => ()
     }
   }
 }

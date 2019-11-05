@@ -71,7 +71,7 @@ class CartActorTest
     expectMsg(inCheckoutMsg)
     expectMsg(1)
     expectMsgPF() {
-      case CheckoutStarted(_) => ()
+      case CheckoutStarted(_, _) => ()
     }
   }
 
@@ -85,7 +85,7 @@ class CartActorTest
     expectMsg(inCheckoutMsg)
     expectMsg(1)
     expectMsgPF() {
-      case CheckoutStarted(_) => ()
+      case CheckoutStarted(_, _) => ()
     }
     cart ! CancelCheckout
     expectMsg(nonEmptyMsg)
@@ -102,7 +102,7 @@ class CartActorTest
     expectMsg(inCheckoutMsg)
     expectMsg(1)
     expectMsgPF() {
-      case CheckoutStarted(_) => ()
+      case CheckoutStarted(_, _) => ()
     }
     cart ! CloseCheckout
     expectMsg(emptyMsg)
@@ -119,7 +119,7 @@ class CartActorTest
     expectMsg(inCheckoutMsg)
     expectMsg(1)
     expectMsgPF() {
-      case CheckoutStarted(_) => ()
+      case CheckoutStarted(_, _) => ()
     }
     cart ! AddItem("Henryk V")
     expectNoMessage
